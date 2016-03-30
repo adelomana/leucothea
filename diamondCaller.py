@@ -40,10 +40,9 @@ def runnerCreator(tag):
     this function creates the runner files of aegir SGE system
     '''
 
-    minimalTag='c%s'%(tag.split('_')[1])
-    fastDir='/tmp/%s/'%tag
+    minimalTag=tag.split('-')[1]
     
-    inputFile='sgeRunnersRefSeq/%s.sh'%tag
+    inputFile='sgeRunners/%s.sh'%tag
     with open(inputFile,'w') as g:
         g.write('#!/bin/bash\n\n')
         g.write('#$ -N %s\n'%minimalTag)
@@ -56,10 +55,16 @@ def runnerCreator(tag):
         g.write('cd /users/alomana\n')
         g.write('source .bash_profile\n\n')
 
-        cmd='time '+diamondPath+' blastx -d '+dataBaseDiamondPath+' -q '+fastaFilesDir+tag+'.fasta -a '+diamondOutputDir+tag+' --threads '+str(threads)+' --sensitive -e 1e-5' # e-value reference, http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3613424/
+        cmd='time '+diamondPath+' blastx -d '+dataBaseDiamondPath+' -q '+fastaFilesDir+tag+'/readsFile1.fasta -a '+diamondOutputDir+tag+'/readsFile1'+' --threads '+str(threads)+' --sensitive -e 1e-5' # e-value reference, http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3613424/
         g.write('%s\n\n'%cmd)
 
-        cmd=diamondPath+' view -a '+diamondOutputDir+tag+'.daa -o '+diamondOutputDir+tag+'.m8'
+        cmd=diamondPath+' view -a '+diamondOutputDir+tag+'/readsFile1'+'.daa -o '+diamondOutputDir+tag+'/readsFile1'+'.m8'
+        g.write('%s\n\n'%cmd)
+
+        cmd='time '+diamondPath+' blastx -d '+dataBaseDiamondPath+' -q '+fastaFilesDir+tag+'/readsFile2.fasta -a '+diamondOutputDir+tag+'/readsFile2'+' --threads '+str(threads)+' --sensitive -e 1e-5'
+        g.write('%s\n\n'%cmd)
+
+        cmd=diamondPath+' view -a '+diamondOutputDir+tag+'/readsFile2'+'.daa -o '+diamondOutputDir+tag+'/readsFile2'+'.m8'
         g.write('%s\n\n'%cmd)
 
     g.close()
@@ -71,8 +76,8 @@ threads=40
 diamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/diamond'
 dataBaseFastaFile='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/complete.nonredundant_protein.all.version.january.19.faa'
 dataBaseDiamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/refseq_jan_19_complete.nonredundant_protein'
-fastaFilesDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/fastq/'
-diamondOutputDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/blast.refseq/'
+fastaFilesDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/fasta/'
+diamondOutputDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/diamond/'
 scratchDir='/proj/omics4tb/alomana/scratch/diamond/'
 
 # 1. building DIAMOND db
@@ -83,17 +88,20 @@ scratchDir='/proj/omics4tb/alomana/scratch/diamond/'
 foundFolders=os.listdir(fastaFilesDir)
 readsDirs=[element for element in foundFolders if 'Sample' in element]
 
-print readsDirs
-sys.exit()
+readsDirs=['Sample_DS-184436']
 
 # 3. create launching the SGE calling files
-for inputFile in inputFiles:
-    tag=inputFile.split('.')[0]
-    #!tag='concatenated_99'
-    runnerCreator(tag)
+print 'launching senders in SGE...'
+for sample in readsDirs:
+
+    newDir=diamondOutputDir+sample
+    if not os.path.exists(newDir):
+        os.mkdir(newDir)  
+    
+    runnerCreator(sample)
 
     # 2.1. launching
-    cmd='qsub sgeRunnersRefSeq/%s.sh'%tag
+    cmd='qsub sgeRunners/%s.sh'%sample
     os.system(cmd)
 
 print '... all done.'
