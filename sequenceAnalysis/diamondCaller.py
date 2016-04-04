@@ -45,7 +45,7 @@ def runnerCreator(tag):
     inputFile='sgeRunners/%s.sh'%tag
     with open(inputFile,'w') as g:
         g.write('#!/bin/bash\n\n')
-        g.write('#$ -N %s\n'%minimalTag)
+        g.write('#$ -N s%s\n'%minimalTag)
         g.write('#$ -o %s/messagesDIAMOND_%s.o.txt\n'%(scratchDir,minimalTag))
         g.write('#$ -e %s/messagesDIAMOND_%s.e.txt\n'%(scratchDir,minimalTag))
         g.write('#$ -P Bal_alomana\n')
@@ -72,7 +72,7 @@ def runnerCreator(tag):
     return None
 
 # 0. user defined variables
-threads=40
+threads=64
 diamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/diamond'
 dataBaseFastaFile='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/complete.nonredundant_protein.all.version.january.19.faa'
 dataBaseDiamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/refseq_jan_19_complete.nonredundant_protein'
@@ -81,14 +81,11 @@ diamondOutputDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/diam
 scratchDir='/proj/omics4tb/alomana/scratch/diamond/'
 
 # 1. building DIAMOND db
-#diamondDBbuilder()
-#sys.exit()
+diamondDBbuilder()
 
 # 2. define the inputs
 foundFolders=os.listdir(fastaFilesDir)
 readsDirs=[element for element in foundFolders if 'Sample' in element]
-
-readsDirs=['Sample_DS-184436']
 
 # 3. create launching the SGE calling files
 print 'launching senders in SGE...'
