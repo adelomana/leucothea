@@ -41,7 +41,6 @@ print 'selecting input files...'
 inputFiles=[]
 selectedDirs=os.listdir(inputFileDir)
 selectedDirs=['Sample_DS-184436', 'Sample_DS-184444', 'Sample_DS-184468', 'Sample_DS-184469', 'Sample_DS-184465', 'Sample_DS-184460']
-selectedDirs=['Sample_DS-184466']
 for element in selectedDirs:
     fileName1=inputFileDir+element+'/readsFile1.m8'
     fileName2=inputFileDir+element+'/readsFile2.m8'
