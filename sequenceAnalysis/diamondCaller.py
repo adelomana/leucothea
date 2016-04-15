@@ -13,7 +13,7 @@ def diamondDBbuilder():
     inputFile=scratchDir+'databaseBuilder.sh'
     with open(inputFile,'w') as g:
         g.write('#!/bin/bash\n\n')
-        g.write('#$ -N database\n')
+        g.write('#$ -N dbBuild\n')
         g.write('#$ -o %s/messages_database_DIAMOND.o.txt\n'%scratchDir)
         g.write('#$ -e %s/messages_database_DIAMOND.e.txt\n'%scratchDir)
         g.write('#$ -P Bal_alomana\n')
@@ -42,12 +42,12 @@ def runnerCreator(tag):
 
     minimalTag=tag.split('-')[1]
     
-    inputFile='sgeRunners/%s.sh'%tag
+    inputFile='sgeRunners/nr.%s.sh'%tag
     with open(inputFile,'w') as g:
         g.write('#!/bin/bash\n\n')
-        g.write('#$ -N s%s\n'%minimalTag)
-        g.write('#$ -o %s/messagesDIAMOND_%s.o.txt\n'%(scratchDir,minimalTag))
-        g.write('#$ -e %s/messagesDIAMOND_%s.e.txt\n'%(scratchDir,minimalTag))
+        g.write('#$ -N n.%s\n'%minimalTag)
+        g.write('#$ -o %s/messages.DIAMOND.RS.nr.%s.o.txt\n'%(scratchDir,minimalTag))
+        g.write('#$ -e %s/messages.DIAMOND.RS.nr.%s.e.txt\n'%(scratchDir,minimalTag))
         g.write('#$ -P Bal_alomana\n')
         g.write('#$ -pe serial %s\n'%threads)
         g.write('#$ -q baliga\n')
@@ -72,16 +72,17 @@ def runnerCreator(tag):
     return None
 
 # 0. user defined variables
-threads=64
+threads=40
 diamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/diamond'
-dataBaseFastaFile='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/complete.nonredundant_protein.all.version.january.19.faa'
-dataBaseDiamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/refseq_jan_19_complete.nonredundant_protein'
+dataBaseFastaFile='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/nr.20160413.fa'
+dataBaseDiamondPath='/proj/omics4tb/alomana/software/diamond-linux64_binary_v0.7.11/nr.20160413'
 fastaFilesDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/fasta/'
-diamondOutputDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/diamond/'
+diamondOutputDir='/proj/omics4tb/alomana/projects/rossSea/data/metagenomics/diamondFiles/nr.85107862/'
 scratchDir='/proj/omics4tb/alomana/scratch/diamond/'
 
 # 1. building DIAMOND db
-diamondDBbuilder()
+#diamondDBbuilder()
+#sys.exit()
 
 # 2. define the inputs
 foundFolders=os.listdir(fastaFilesDir)
@@ -98,7 +99,9 @@ for sample in readsDirs:
     runnerCreator(sample)
 
     # 2.1. launching
-    cmd='qsub sgeRunners/%s.sh'%sample
+    cmd='qsub sgeRunners/nr.%s.sh'%sample
     os.system(cmd)
+
+    #sys.exit()
 
 print '... all done.'
