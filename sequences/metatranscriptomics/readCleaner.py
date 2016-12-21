@@ -21,7 +21,6 @@ def proceedChecker():
 
     return None
     
-
 def trimmomaticCaller(instance):
     
     '''
@@ -32,18 +31,18 @@ def trimmomaticCaller(instance):
 
     logFile=logFilesDir+instance+'.messagesFromTrimming.txt'
 
-    inputFile1=rawReadsDir+instance+'_R1_001.fastq.gz'
-    inputFile2=rawReadsDir+instance+'_R2_001.fastq.gz'
+    inputFile1=rawReadsDir+instance+'_R1_001.fastq'
+    inputFile2=rawReadsDir+instance+'_R2_001.fastq'
 
-    outputFile1a=cleanReadsDir+instance+'_R1_001.fastq.gz'
-    outputFile1b=cleanReadsDir+instance+'_R2_001.fastq.gz'
+    outputFile1a=cleanReadsDir+instance+'_R1_001.paired.forward.fastq'
+    outputFile1b=cleanReadsDir+instance+'_R1_001.unpaired.forward.fastq'
 
-    outputFile2a=cleanReadsDir+instance+'_R1_001.fastq.gz'
-    outputFile2b=cleanReadsDir+instance+'_R2_001.fastq.gz'
+    outputFile2a=cleanReadsDir+instance+'_R2_001.paired.reverse.fastq'
+    outputFile2b=cleanReadsDir+instance+'_R2_001.unpaired.reverse.fastq'
 
     cmd='time '+javaPath+' -jar '+trimmomaticPath+' PE -threads 4 -phred33 -trimlog %s %s %s %s %s %s %s ILLUMINACLIP:%s:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36'%(logFile,inputFile1,inputFile2,outputFile1a,outputFile1b,outputFile2a,outputFile2b,path2Adapter)
 
-    proceedChecker()
+    #proceedChecker()
 
     print(cmd)
     os.system(cmd)
@@ -64,7 +63,7 @@ javaPath='/Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/
 trimmomaticPath='/Users/alomana/software/Trimmomatic-0.36/trimmomatic-0.36.jar'
 
 # 1. reading the files
-tag='_R1_001.fastq.gz'
+tag='_R1_001.fastq'
 fastqFiles=os.listdir(rawReadsDir)
 readFiles=[element for element in fastqFiles if tag in element]
 
