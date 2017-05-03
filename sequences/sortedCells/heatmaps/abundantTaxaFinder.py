@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath('../../lib'))
 import library
 
 # 0. defining user variables and paths
-dataDir='/Volumes/omics4tb/alomana/projects/rossSea/data/sortedCells/hits/'
+dataDir='/Volumes/omics4tb/alomana/projects/rossSea/data/sortedCells/hits/genus/'
 figureFolder='/Volumes/omics4tb/alomana/projects/rossSea/results/'
 
 # 1.1. defining sample names
@@ -44,10 +44,6 @@ for boat in flotilla:
 for taxon in selectedTaxa:
     broken=taxon.split('/')
     depth=len(broken)
-    print(taxon)
-    print(broken)
-    print(depth)
-    print('')
     # is there a deeper taxon, then it is not deep enough
     deep=0
     for element in selectedTaxa:
@@ -74,7 +70,14 @@ for taxon in deepTaxa:
 kings=sorted(rank,key=rank.get,reverse=True)
 
 for king in kings:
-    print(king,rank[king])
-
+    for i in range(len(sampleTags)):
+        freq=0
+        try:
+            freq=flotilla[i][0][king]
+        except:
+            pass
+        print(king,sampleTags[i],freq)
+    print('')
+        
 
 sys.exit()
