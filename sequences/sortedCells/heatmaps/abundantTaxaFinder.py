@@ -69,15 +69,24 @@ for taxon in deepTaxa:
 
 kings=sorted(rank,key=rank.get,reverse=True)
 
+fileName='messages.txt'
+f=open(fileName,'w')
+f.write('taxon\t')
+header=[sampleTags[i] for i in range(len(sampleTags))]
+headerString='\t'.join(header)
+f.write('%s\n'%headerString)
+
 for king in kings:
+    f.write('%s\t'%king)
     for i in range(len(sampleTags)):
         freq=0
         try:
             freq=flotilla[i][0][king]
         except:
             pass
-        print(king,sampleTags[i],freq)
-    print('')
-        
+        f.write('%s\t'%freq)
+    f.write('\n')
+
+f.close()
 
 sys.exit()

@@ -26,12 +26,11 @@ def entropyCalculator(a):
 
     return h
 
-def sampleReader(inputFileName):
+def sampleReader(inputFileName,frequencyTaxon):
 
     noahsArk={}
     taxonomy=[]
-
-    reading=False
+    computing=False
 
     with open(inputFileName,'r') as f:
         for line in f:
@@ -43,31 +42,37 @@ def sampleReader(inputFileName):
                 for item in elements:
                     cleanVector.append(item)
 
-            # choosing which lines to read
-            if cleanVector[0] == 'root':
-                reading=True
-                totalReads=float(cleanVector[1])
-            if cleanVector[0][:3] == '###':
-                reading=False
+            # choose which lines to read based on defining relative number of total reads
+            if len(cleanVector) > 2:
+                if cleanVector[-2] == frequencyTaxon:
+                    totalReads=int(cleanVector[-1])
+                    computing=True
+            if cleanVector[0][:5] == '+++++':
+                computing=False
                 
-            # filling up Noah's ark. Building a dictionary with unique names and number of reads and a list for the structure of the taxonomy.
-            if reading == True:
-                # dealing with the taxonomy
-                taxonomyDepth=len(cleanVector)-1
-                for i in range(taxonomyDepth):
-                    putative=cleanVector[i]
-                    # creating a list if it is a new taxon level
-                    if putative != '':
-                        if len(taxonomy) < i+1:
-                            taxonomy.append([])
-                        # adding the taxon if it does not exists
-                        if putative not in taxonomy[i]:
-                            taxonomy[i].append(putative)
-                # adding the number of reads to the taxon
-                numberOfReads=int(float(cleanVector[-1]))
-                relativeAbundance=float(numberOfReads)/totalReads #!!!!!!!
-                verboseTaxon=[taxonomy[taxon][-1] for taxon in range(taxonomyDepth)]
-                tag='/'.join(verboseTaxon)
-                noahsArk[tag]=relativeAbundance
+            # filling up Noah's ark. Building a dictionary with unique names and number of reads and a list for the structure of the taxonomy
+            
+            # dealing with the taxonomy
+            taxonomyDepth=len(cleanVector)-1
+            for i in range(taxonomyDepth):
+                putative=cleanVector[i]
+                # creating a list if it is a new taxon level
+                if putative != '':
+                    if len(taxonomy) < i+1:
+                        taxonomy.append([])
+                    # adding the taxon if it does not exists
+                    if putative not in taxonomy[i]:
+                        taxonomy[i].append(putative)
+
+            # adding the number of reads to the taxon
+            if computing == True:
+                numberOfReads=int(cleanVector[-1])
+                if numberOfReads > 1e2:
+                    relativeAbundance=numberOfReads/totalReads
+                    verboseTaxon=[taxonomy[taxon][-1] for taxon in range(taxonomyDepth)]
+                    tag='/'.join(verboseTaxon)
+                    noahsArk[tag]=relativeAbundance
+
+                    #print(tag,numberOfReads,relativeAbundance)
 
     return noahsArk,taxonomy
